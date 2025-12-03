@@ -1,14 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Thank You | Esha’s Engagement</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="color-scheme" content="light dark">
+  <title>Thank You | Esha's Engagement</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --bg: #f7f1e9;
+      --card: #ffffff;
+      --accent: #222222;
+      --font-serif: "Playfair Display", "Times New Roman", serif;
+      --font-sans: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 0;
-      font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--font-sans);
       background: linear-gradient(135deg, #e4d7c5, #f7f1e9);
       color: #111;
       display: flex;
@@ -16,33 +30,56 @@
       align-items: center;
       min-height: 100vh;
     }
+
     .card {
-      background: #ffffff;
+      background: var(--card);
       border-radius: 18px;
-      box-shadow: 0 18px 45px rgba(0,0,0,0.08);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.08);
       padding: 32px 26px;
       max-width: 480px;
       text-align: center;
     }
+
     h1 {
-      font-family: "Playfair Display", "Times New Roman", serif;
+      font-family: var(--font-serif);
       letter-spacing: 0.12em;
       text-transform: uppercase;
       font-size: 20px;
-      margin-bottom: 12px;
+      margin: 0 0 12px;
     }
+
     p {
       font-size: 14px;
       line-height: 1.6;
       margin: 6px 0;
     }
+
+    /* --- Dark mode: follow device setting --- */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: radial-gradient(circle at top, #3a342b 0, #141210 55%, #040302 100%);
+        color: #f7f1e9;
+      }
+
+      .card {
+        background: #191613;
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.75);
+      }
+
+      h1,
+      p {
+        color: #f7f1e9;
+      }
+    }
   </style>
-    </head>
-    <body>
-        <div class="card">
-            <h1>Thank you for your RSVP</h1>
-            <p>We’ve received your response.</p>
-            <p>We can’t wait to celebrate Esha’s big surprise with you.</p>
-        </div>
-    </body>
+</head>
+
+<body>
+  <div class="card">
+    <h1>Thank you for your RSVP</h1>
+    <p>We've received your response.</p>
+    <p>We can't wait to celebrate Esha's big surprise with you.</p>
+  </div>
+</body>
+
 </html>

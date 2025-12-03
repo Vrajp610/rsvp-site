@@ -54,6 +54,7 @@
             letter-spacing: 0.24em;
             font-size: 11px;
             color: #777;
+            text-align: center;
         }
 
         .hero-title {
@@ -62,12 +63,15 @@
             letter-spacing: 0.12em;
             text-transform: uppercase;
             margin: 8px 0 4px;
+            text-align: center;
+            line-height: 1.4;
         }
 
         .hero-script {
             font-family: "Great Vibes", "Brush Script MT", cursive;
             font-size: 22px;
             margin: 0 0 12px;
+            text-align: center;
         }
 
         .hero-sub {
@@ -75,6 +79,7 @@
             color: #444;
             line-height: 1.5;
             margin-bottom: 20px;
+            text-align: center;
         }
 
         .divider {
@@ -83,33 +88,68 @@
             margin: 18px 0 22px;
         }
 
+        /* CENTERED 3-COLUMN DETAILS GRID */
         .details-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 14px;
-            margin-bottom: 18px;
+            gap: 18px;
+            max-width: 640px;
+            margin: 0 auto 16px;
+            justify-items: flex-start;
         }
 
         @media (min-width: 540px) {
             .details-grid {
-                grid-template-columns: 1.1fr 1.1fr;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
             }
         }
 
+        .details-block {
+            text-align: left;
+        }
+
         .details-label {
-            font-size: 11px;
+            font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.16em;
+            letter-spacing: 0.20em;
             color: #777;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .details-value {
             font-family: var(--font-serif);
-            font-size: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .details-block-dress .details-value {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .dress-main-line {
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .dress-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .dress-list li {
+            margin-bottom: 4px;
+            font-size: 14px;
             line-height: 1.4;
         }
 
+        .dress-list strong {
+            font-weight: 600;
+        }
+
+        /* INVITEE BOX (restores the styled box around "This invitation is for") */
         .invitee-box {
             margin: 16px 0 24px;
             padding: 12px 14px;
@@ -136,10 +176,30 @@
 
         .rsvp-title {
             font-family: var(--font-serif);
-            font-size: 18px;
+            font-size: 25px;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
-            letter-spacing: 0.2em;
-            margin: 0 0 12px;
+            margin: 22px 0 4px;
+        }
+
+        .helper {
+            font-size: 11px;
+            color: #777;
+            margin-top: 4px;
+        }
+
+        .rsvp-helper {
+            margin-top: 2px;
+            margin-bottom: 12px;
+        }
+
+        .rsvp-deadline-date {
+            font-family: var(--font-serif);
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #444;
+            font-size: 12px;
         }
 
         form {
@@ -169,12 +229,6 @@
         textarea {
             resize: vertical;
             min-height: 70px;
-        }
-
-        .helper {
-            font-size: 11px;
-            color: #777;
-            margin-top: 4px;
         }
 
         .button-row {
@@ -217,7 +271,7 @@
 
         .footer-note {
             margin-top: 20px;
-            font-size: 11px;
+            font-size: 13px;
             color: #7a6b57;
             text-align: center;
         }
@@ -285,9 +339,18 @@
     <div class="page">
         <div class="card">
             <!-- HERO / INTRO -->
-            <div class="tagline">Shhh… it’s a secret 💍</div>
-            <h1 class="hero-title">The One Where Esha Becomes a Fiancée</h1>
-            <p class="hero-script">A surprise proposal party for Esha</p>
+            <div class="tagline">Shhhh... it's a secret 💍</div>
+            <h1 class="hero-title">
+                The One Where<br>
+                Esha Becomes a Fiancée
+            </h1>
+            <p class="hero-script">
+                A surprise proposal party for Esha
+            </p>
+            <p class="hero-sub">
+                Your presence means the world to us.<br>
+                Come celebrate us and the beginning of our forever!
+            </p>
 
             <!-- LOCAL VIDEO -->
             <div style="
@@ -305,29 +368,44 @@
 
             <hr class="divider">
 
-            <!-- EVENT DETAILS -->
+            <!-- EVENT DETAILS: Date/Time, Dress Code, Location -->
             <div class="details-grid">
-                <div>
-                    <div class="details-label">Date & Time</div>
+                <div class="details-block">
+                    <div class="details-label">Date &amp; Time</div>
                     <div class="details-value">
                         Saturday, February 21, 2026<br>
                         6:00 PM – 10:30 PM
                     </div>
                 </div>
-                <div>
+
+                <div class="details-block details-block-dress">
+                    <div class="details-label">Dress Code</div>
+                    <div class="details-value">
+                        <div class="dress-main-line">Cocktail attire</div>
+                        <ul class="dress-list">
+                            <li><strong>Men:</strong> Formal wear</li>
+                            <li><strong>Ladies:</strong> Cocktail dress (no sneakers)</li>
+                            <li><strong>Note:</strong> Kindly refrain from wearing white</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="details-block">
                     <div class="details-label">Location</div>
                     <div class="details-value">
-                        Highwater Rooftop<br>
-                        [Street Address]<br>
-                        New York, NY
+                        <strong>Highwater Rooftop</strong><br>
+                        120 Water St<br>
+                        New York, NY<br>
+                        10005
                     </div>
                 </div>
             </div>
 
             <!-- RSVP HEADER / DEADLINE -->
             <h2 class="rsvp-title">Kindly RSVP</h2>
-            <div class="helper">
-                Please RSVP by December 25, 2025.
+            <div class="helper rsvp-helper">
+                Please RSVP by
+                <span class="rsvp-deadline-date">December 25, 2025.</span>
             </div>
             <div id="rsvpClosedMessage" class="error hidden" style="margin-top:8px;"></div>
 
@@ -399,13 +477,11 @@
     <script>
         // RSVP closes after December 25, 2025 (inclusive)
         const RSVP_DEADLINE = new Date("2025-12-25T00:00:00"); // local time
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxqa-HcDFR1ZiQKjErD4Hc1u99OQF0MWz-IYz2iUdYBjWvQbMs3fsNwzCibnZXbteSt/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1Woihr76WByuveASdUiRObj6cve9hWJTlx5llP-sGbhHFeFHv9RbRzrr-t64f2FPX/exec";
 
-        // GROUPS: map groupId -> array of invited names
         const guestGroups = {
             "G001": ["Vraj Patel", "Esha Patel"],
             "G002": ["Rudra Patel"],
-            "G003": ["Tarun Joshi", "Nishtha Patel"],
         };
 
         function normalize(str) {
@@ -579,10 +655,8 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            // Enforce RSVP deadline
             enforceRsvpDeadline();
 
-            // Video autoplay helper
             const video = document.getElementById("inviteVideo");
             if (video) {
                 video.play().catch(() => { });

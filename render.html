@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Shhhh… It’s a Secret | RSVP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        :root {
+            --bg: #f7f1e9;
+            --card: #ffffff;
+            --accent: #222222;
+            --accent-light: #c4b59c;
+            --font-serif: "Playfair Display", "Times New Roman", serif;
+            --font-sans: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-sans);
+            background: linear-gradient(135deg, #e4d7c5, #f7f1e9);
+            color: #111;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 720px;
+            padding: 24px 16px 40px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 18px;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.08);
+            padding: 28px 22px 30px;
+        }
+
+        @media (min-width: 640px) {
+            .card {
+                padding: 40px 40px 42px;
+            }
+        }
+
+        .tagline {
+            text-transform: uppercase;
+            letter-spacing: 0.24em;
+            font-size: 11px;
+            color: #777;
+        }
+
+        .hero-title {
+            font-family: var(--font-serif);
+            font-size: 26px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin: 8px 0 4px;
+        }
+
+        .hero-script {
+            font-family: "Great Vibes", "Brush Script MT", cursive;
+            font-size: 22px;
+            margin: 0 0 12px;
+        }
+
+        .hero-sub {
+            font-size: 13px;
+            color: #444;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid var(--accent-light);
+            margin: 18px 0 22px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        @media (min-width: 540px) {
+            .details-grid {
+                grid-template-columns: 1.1fr 1.1fr;
+            }
+        }
+
+        .details-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: #777;
+            margin-bottom: 4px;
+        }
+
+        .details-value {
+            font-family: var(--font-serif);
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .invitee-box {
+            margin: 16px 0 24px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #faf5ee;
+            border: 1px dashed #d2c3ac;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .invitee-label {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-size: 10px;
+            color: #777;
+            margin-bottom: 3px;
+        }
+
+        .invitee-names {
+            font-family: var(--font-serif);
+            font-size: 16px;
+        }
+
+        .rsvp-title {
+            font-family: var(--font-serif);
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin: 0 0 12px;
+        }
+
+        form {
+            display: grid;
+            gap: 14px;
+        }
+
+        label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: 100%;
+            padding: 10px 11px;
+            border-radius: 10px;
+            border: 1px solid #d6c8b4;
+            font: inherit;
+            font-size: 14px;
+            background: #fdfbf7;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .helper {
+            font-size: 11px;
+            color: #777;
+            margin-top: 4px;
+        }
+
+        .button-row {
+            margin-top: 10px;
+        }
+
+        button[type="submit"],
+        .btn-secondary {
+            display: inline-block;
+            padding: 11px 20px;
+            border-radius: 999px;
+            border: none;
+            background: var(--accent);
+            color: white;
+            font-size: 12px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+            white-space: nowrap;
+        }
+
+        button[type="submit"]:hover,
+        .btn-secondary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+            background: #000;
+        }
+
+        button[type="submit"]:active,
+        .btn-secondary:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: #8b7b64;
+            margin-left: 8px;
+        }
+
+        .footer-note {
+            margin-top: 20px;
+            font-size: 11px;
+            color: #7a6b57;
+            text-align: center;
+        }
+
+        .error {
+            color: #b30000;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .guest-list {
+            margin-top: 8px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .guest-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 9px 10px;
+            border-radius: 10px;
+            background: #fdf7ef;
+            border: 1px solid #e0d1bc;
+        }
+
+        @media (min-width: 520px) {
+            .guest-row {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        .guest-name {
+            font-family: var(--font-serif);
+            font-size: 15px;
+        }
+
+        .guest-radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .search-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .search-row input[type="text"] {
+            flex: 1 1 180px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="card">
+            <!-- HERO / INTRO -->
+            <div class="tagline">Shhhh… it’s a secret</div>
+            <h1 class="hero-title">The One Where Esha Becomes a Fiancé</h1>
+            <p class="hero-script">A surprise proposal + engagement party for Esha</p>
+            <p class="hero-sub">
+                You’ve been hand-picked to help Vraj pull off the surprise.
+                Please keep this between us and arrive on time so you’re there
+                for the big moment.
+            </p>
+
+            <!-- LOCAL VIDEO -->
+            <div style="
+          max-width: 480px;
+          margin: 1.6em auto 0.9em;
+          box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16);
+          border-radius: 8px;
+          overflow: hidden;
+        ">
+                <video id="inviteVideo" src="Invited.mp4" type="video/mp4" autoplay playsinline controls
+                    preload="metadata" style="width: 100%; display: block;">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div class="helper" style="margin-bottom: 10px;">
+                Invitation video by Esha
+            </div>
+
+            <hr class="divider">
+
+            <!-- EVENT DETAILS -->
+            <div class="details-grid">
+                <div>
+                    <div class="details-label">Date & Time</div>
+                    <div class="details-value">
+                        Saturday, February 21, 2026<br>
+                        6:00 PM – 10:30 PM
+                    </div>
+                </div>
+                <div>
+                    <div class="details-label">Location</div>
+                    <div class="details-value">
+                        Highwater Rooftop<br>
+                        [Street Address]<br>
+                        New York, NY
+                    </div>
+                </div>
+            </div>
+
+            <!-- RSVP HEADER / DEADLINE -->
+            <h2 class="rsvp-title">Kindly RSVP</h2>
+            <div class="helper">
+                Please RSVP by December 25, 2025.
+            </div>
+            <div id="rsvpClosedMessage" class="error hidden" style="margin-top:8px;"></div>
+
+            <!-- SINGLE FORM -->
+            <form id="rsvpForm" method="POST" action="#">
+                <!-- NAME SEARCH -->
+                <div>
+                    <label for="searchName">Search your name</label>
+                    <div class="search-row">
+                        <input id="searchName" type="text" placeholder="e.g. Vraj Patel" autocomplete="off">
+                        <button type="button" class="btn-secondary" id="searchButton">Search</button>
+                    </div>
+                    <div class="helper">
+                        Enter your first and last name as it appears on your invitation.
+                        Everyone in your group will appear together.
+                    </div>
+                    <div id="searchError" class="error hidden"></div>
+                </div>
+
+                <!-- INVITEE BOX -->
+                <div id="inviteeSection" class="invitee-box hidden">
+                    <div class="invitee-label">This invitation is for</div>
+                    <div id="inviteeNames" class="invitee-names">Guest(s)</div>
+                    <div class="helper">
+                        This RSVP is only for the person(s) named above.
+                        Please do not forward or add additional guests.
+                    </div>
+                </div>
+
+                <!-- Hidden fields for backend -->
+                <input type="hidden" id="groupId" name="group_id">
+                <input type="hidden" id="assignedGuests" name="assigned_guests">
+
+                <!-- GUEST ATTENDANCE -->
+                <div id="guestAttendanceSection" class="hidden">
+                    <label>Who is coming?</label>
+                    <div id="guestAttendanceList" class="guest-list"></div>
+                    <div class="helper">
+                        Please respond for each person listed above.
+                    </div>
+                </div>
+
+                <!-- EMAIL + NOTES -->
+                <div>
+                    <label for="email">Email</label>
+                    <input id="email" name="email" type="email" required placeholder="you@example.com">
+                </div>
+
+                <div>
+                    <label for="notes">Notes (dietary needs, etc.)</label>
+                    <textarea id="notes" name="notes"
+                        placeholder="Let us know about any dietary restrictions or other details."></textarea>
+                </div>
+
+                <div class="button-row">
+                    <button type="submit" id="submitButton" disabled>Submit RSVP</button>
+                </div>
+
+                <div id="errorMessage" class="error hidden"></div>
+            </form>
+
+            <div class="footer-note">
+                Please keep this a surprise from Esha.<br>
+                Thank you for helping make this night unforgettable.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // RSVP closes after December 25, 2025 (inclusive)
+        const RSVP_DEADLINE = new Date("2025-12-25T00:00:00"); // local time
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxqa-HcDFR1ZiQKjErD4Hc1u99OQF0MWz-IYz2iUdYBjWvQbMs3fsNwzCibnZXbteSt/exec";
+
+        // GROUPS: map groupId -> array of invited names
+        const guestGroups = {
+            "G001": ["Vraj Patel", "Esha Patel"],
+            "G002": ["Rudra Patel"],
+            "G003": ["Tarun Joshi", "Nishtha Patel"],
+        };
+
+        function normalize(str) {
+            return (str || "").toLowerCase().trim();
+        }
+
+        function findGroupByName(query) {
+            const q = normalize(query);
+            if (!q) return null;
+
+            for (const [groupId, names] of Object.entries(guestGroups)) {
+                for (const name of names) {
+                    const n = normalize(name);
+                    if (n === q || n.includes(q)) {
+                        return { groupId, names };
+                    }
+                }
+            }
+            return null;
+        }
+
+        function slugifyName(name) {
+            return name
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "_")
+                .replace(/^_+|_+$/g, "");
+        }
+
+        function buildGuestAttendanceRows(names) {
+            const container = document.getElementById("guestAttendanceList");
+            container.innerHTML = "";
+
+            names.forEach((name, index) => {
+                const slug = slugifyName(name) || ("guest_" + index);
+                const row = document.createElement("div");
+                row.className = "guest-row";
+
+                row.innerHTML = `
+          <div class="guest-name">${name}</div>
+          <div class="guest-radio-group">
+            <label>
+              <input type="radio" name="attending_${slug}" value="Yes" required> Yes
+            </label>
+            <label>
+              <input type="radio" name="attending_${slug}" value="No" required> No
+            </label>
+          </div>
+        `;
+
+                container.appendChild(row);
+            });
+        }
+
+        function namesFromCsv(csv) {
+            if (!csv) return [];
+            return csv
+                .split(",")
+                .map(s => s.trim())
+                .filter(s => s.length > 0);
+        }
+
+        function prefillFromSavedData(groupId, names) {
+            fetch(`${SCRIPT_URL}?group_id=${encodeURIComponent(groupId)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.found) return;
+
+                    const attendingList = namesFromCsv(data.attending);
+                    const notAttendingList = namesFromCsv(data.not_attending);
+
+                    if (data.email) {
+                        document.getElementById("email").value = data.email;
+                    }
+                    if (data.notes) {
+                        document.getElementById("notes").value = data.notes;
+                    }
+
+                    names.forEach((name, index) => {
+                        const slug = slugifyName(name) || ("guest_" + index);
+                        const yesSelector = `input[name="attending_${slug}"][value="Yes"]`;
+                        const noSelector = `input[name="attending_${slug}"][value="No"]`;
+                        const yesInput = document.querySelector(yesSelector);
+                        const noInput = document.querySelector(noSelector);
+
+                        if (!yesInput || !noInput) return;
+
+                        if (attendingList.includes(name)) {
+                            yesInput.checked = true;
+                        } else if (notAttendingList.includes(name)) {
+                            noInput.checked = true;
+                        }
+                    });
+                })
+                .catch(err => {
+                    console.error("Error fetching saved RSVP:", err);
+                });
+        }
+
+        function handleSearch() {
+            const searchInput = document.getElementById("searchName");
+            const query = searchInput.value;
+            const searchError = document.getElementById("searchError");
+            const inviteeSection = document.getElementById("inviteeSection");
+            const inviteeNames = document.getElementById("inviteeNames");
+            const guestAttendanceSection = document.getElementById("guestAttendanceSection");
+            const groupIdInput = document.getElementById("groupId");
+            const assignedGuestsInput = document.getElementById("assignedGuests");
+            const submitButton = document.getElementById("submitButton");
+            const errorMessage = document.getElementById("errorMessage");
+
+            searchError.classList.add("hidden");
+            errorMessage.classList.add("hidden");
+            errorMessage.textContent = "";
+
+            const match = findGroupByName(query);
+
+            if (!match) {
+                inviteeSection.classList.add("hidden");
+                guestAttendanceSection.classList.add("hidden");
+                submitButton.disabled = true;
+                searchError.textContent =
+                    "We couldn’t find that name. Please check the spelling or contact the host.";
+                searchError.classList.remove("hidden");
+                return;
+            }
+
+            const namesText = match.names.join(", ");
+            inviteeNames.textContent = namesText;
+            inviteeSection.classList.remove("hidden");
+            guestAttendanceSection.classList.remove("hidden");
+
+            buildGuestAttendanceRows(match.names);
+
+            groupIdInput.value = match.groupId;
+            assignedGuestsInput.value = namesText;
+
+            submitButton.disabled = false;
+
+            prefillFromSavedData(match.groupId, match.names);
+        }
+
+        function enforceRsvpDeadline() {
+            const now = new Date();
+            const isClosed = now >= RSVP_DEADLINE;
+
+            const closedMsg = document.getElementById("rsvpClosedMessage");
+            const searchInput = document.getElementById("searchName");
+            const searchButton = document.getElementById("searchButton");
+            const form = document.getElementById("rsvpForm");
+            const submitButton = document.getElementById("submitButton");
+
+            if (!closedMsg || !form) return;
+
+            if (isClosed) {
+                closedMsg.textContent =
+                    "RSVP is now closed. Thank you for your love and support – we can’t wait to celebrate with you.";
+                closedMsg.classList.remove("hidden");
+
+                if (searchInput) searchInput.disabled = true;
+                if (searchButton) searchButton.disabled = true;
+
+                Array.from(form.elements).forEach(el => {
+                    el.disabled = true;
+                });
+
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.textContent = "RSVP Closed";
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Enforce RSVP deadline
+            enforceRsvpDeadline();
+
+            // Video autoplay helper
+            const video = document.getElementById("inviteVideo");
+            if (video) {
+                video.play().catch(() => { });
+                const resume = () => {
+                    video.play().catch(() => { });
+                    document.removeEventListener("click", resume);
+                    document.removeEventListener("touchstart", resume);
+                };
+                document.addEventListener("click", resume);
+                document.addEventListener("touchstart", resume);
+            }
+
+            const searchButton = document.getElementById("searchButton");
+            const searchInput = document.getElementById("searchName");
+
+            searchButton.addEventListener("click", handleSearch);
+            searchInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSearch();
+                }
+            });
+
+            const form = document.getElementById("rsvpForm");
+            const errorMessage = document.getElementById("errorMessage");
+            const submitButton = document.getElementById("submitButton");
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                errorMessage.classList.add("hidden");
+                errorMessage.textContent = "";
+
+                submitButton.disabled = true;
+                submitButton.textContent = "Submitting...";
+
+                const formData = new FormData(form);
+
+                fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(res => res.json().catch(() => ({})))
+                    .then(() => {
+                        window.location.href = "thankyou.html";
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        errorMessage.textContent =
+                            "Something went wrong submitting your RSVP. Please try again or contact the host.";
+                        errorMessage.classList.remove("hidden");
+                        submitButton.disabled = false;
+                        submitButton.textContent = "Submit RSVP";
+                    });
+            });
+        });
+    </script>
+</body>
+
+</html>

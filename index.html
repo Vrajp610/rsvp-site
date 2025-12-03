@@ -477,7 +477,7 @@
                         <div class="dress-main-line">Cocktail attire</div>
                         <ul class="dress-list">
                             <li><strong>Men:</strong> Formal wear</li>
-                            <li><strong>Ladies:</strong> Cocktail dress (no sneakers)</li>
+                            <li><strong>Women:</strong> Cocktail dress (no sneakers)</li>
                             <li><strong>Note:</strong> Kindly refrain from wearing white</li>
                         </ul>
                     </div>
@@ -544,12 +544,7 @@
                     </div>
                 </div>
 
-                <!-- EMAIL + NOTES -->
-                <div>
-                    <label for="email">Email</label>
-                    <input id="email" name="email" type="email" required placeholder="you@example.com">
-                </div>
-
+                <!-- NOTES -->
                 <div>
                     <label for="notes">Notes (dietary needs, etc.)</label>
                     <textarea id="notes" name="notes"
@@ -574,7 +569,7 @@
     <script>
         // RSVP closes after December 25, 2025 (inclusive)
         const RSVP_DEADLINE = new Date("2025-12-25T00:00:00"); // local time
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1Woihr76WByuveASdUiRObj6cve9hWJTlx5llP-sGbhHFeFHv9RbRzrr-t64f2FPX/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzo1IDrINI74IvtSFRIzqn3B1DjA-ONFyKx3UW19t2SfFLaqe2zy7rXbyCmAqgPTAuh/exec";
 
         // Rate limiting for search
         const SEARCH_MAX_ATTEMPTS = 5;
@@ -644,7 +639,10 @@
                 row.className = "guest-row";
 
                 row.innerHTML = `
-          <div class="guest-name">${name}</div>
+          <div style="flex: 1;">
+            <div class="guest-name">${name}</div>
+            <input type="email" name="email_${slug}" placeholder="Email address" required style="width: 100%; padding: 8px; margin-top: 6px; border-radius: 8px; border: 1px solid #d6c8b4; font-size: 13px;">
+          </div>
           <div class="guest-radio-group">
             <label>
               <input type="radio" name="attending_${slug}" value="Yes" required> Yes
@@ -676,11 +674,18 @@
                     const attendingList = namesFromCsv(data.attending);
                     const notAttendingList = namesFromCsv(data.not_attending);
 
-                    if (data.email) {
-                        document.getElementById("email").value = data.email;
-                    }
                     if (data.notes) {
                         document.getElementById("notes").value = data.notes;
+                    }
+
+                    // Parse individual emails (format: "name1:email1,name2:email2")
+                    const emailMap = {};
+                    if (data.individual_emails) {
+                        const emailPairs = data.individual_emails.split(";").filter(Boolean);
+                        emailPairs.forEach(pair => {
+                            const [name, email] = pair.split(":").map(s => s.trim());
+                            if (name && email) emailMap[name] = email;
+                        });
                     }
 
                     names.forEach((name, index) => {
@@ -689,6 +694,7 @@
                         const noSelector = `input[name="attending_${slug}"][value="No"]`;
                         const yesInput = document.querySelector(yesSelector);
                         const noInput = document.querySelector(noSelector);
+                        const emailInput = document.querySelector(`input[name="email_${slug}"]`);
 
                         if (!yesInput || !noInput) return;
 
@@ -696,6 +702,11 @@
                             yesInput.checked = true;
                         } else if (notAttendingList.includes(name)) {
                             noInput.checked = true;
+                        }
+
+                        // Prefill individual email if available
+                        if (emailInput && emailMap[name]) {
+                            emailInput.value = emailMap[name];
                         }
                     });
                 })

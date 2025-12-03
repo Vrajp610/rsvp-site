@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="color-scheme" content="light dark">
     <title>Shhhh… It’s a Secret | RSVP</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
@@ -88,7 +89,6 @@
             margin: 18px 0 22px;
         }
 
-        /* CENTERED 3-COLUMN DETAILS GRID */
         .details-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -149,7 +149,6 @@
             font-weight: 600;
         }
 
-        /* INVITEE BOX (restores the styled box around "This invitation is for") */
         .invitee-box {
             margin: 16px 0 24px;
             padding: 12px 14px;
@@ -332,6 +331,100 @@
         .search-row input[type="text"] {
             flex: 1 1 180px;
         }
+
+        /* multiple-match selector */
+        .match-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            font-size: 13px;
+        }
+
+        .match-option-text {
+            font-family: var(--font-serif);
+        }
+
+        /* --- Dark mode: follow device setting --- */
+        @media (prefers-color-scheme: dark) {
+
+            body {
+                background: radial-gradient(circle at top, #3a342b 0, #141210 55%, #040302 100%);
+                color: #f7f1e9;
+            }
+
+            .card {
+                background: #191613;
+                box-shadow: 0 18px 45px rgba(0, 0, 0, 0.75);
+            }
+
+            .divider {
+                border-top-color: #4a443a;
+            }
+
+            .tagline,
+            .details-label,
+            label,
+            .helper,
+            .rsvp-helper {
+                color: #c7bfb1;
+            }
+
+            .hero-title,
+            .hero-script,
+            .hero-sub,
+            .details-value,
+            .guest-name,
+            .footer-note,
+            .rsvp-title {
+                color: #f7f1e9;
+            }
+
+            .rsvp-deadline-date {
+                color: #f7f1e9;
+            }
+
+            input[type="text"],
+            input[type="email"],
+            textarea {
+                background: #151310;
+                border-color: #4a443a;
+                color: #f7f1e9;
+            }
+
+            input::placeholder,
+            textarea::placeholder {
+                color: #a39a8a;
+            }
+
+            .invitee-box,
+            .guest-row {
+                background: #201d19;
+                border-color: #4a443a;
+            }
+
+            .error {
+                color: #ffb3b3;
+            }
+
+            button[type="submit"] {
+                background: #f0e4cf;
+                color: #111;
+            }
+
+            button[type="submit"]:hover {
+                background: #fff1d8;
+            }
+
+            .btn-secondary {
+                background: #c4b59c;
+                color: #111;
+            }
+
+            .btn-secondary:hover {
+                background: #ddccb2;
+            }
+        }
     </style>
 </head>
 
@@ -425,6 +518,9 @@
                     <div id="searchError" class="error hidden"></div>
                 </div>
 
+                <!-- MULTIPLE MATCHES BOX -->
+                <div id="multipleMatches" class="invitee-box hidden"></div>
+
                 <!-- INVITEE BOX -->
                 <div id="inviteeSection" class="invitee-box hidden">
                     <div class="invitee-label">This invitation is for</div>
@@ -474,33 +570,61 @@
         </div>
     </div>
 
+    <script src="guests.js"></script>
     <script>
         // RSVP closes after December 25, 2025 (inclusive)
         const RSVP_DEADLINE = new Date("2025-12-25T00:00:00"); // local time
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1Woihr76WByuveASdUiRObj6cve9hWJTlx5llP-sGbhHFeFHv9RbRzrr-t64f2FPX/exec";
 
-        const guestGroups = {
-            "G001": ["Vraj Patel", "Esha Patel"],
-            "G002": ["Rudra Patel"],
-        };
+        // Rate limiting for search
+        const SEARCH_MAX_ATTEMPTS = 5;
+        const SEARCH_COOLDOWN_MS = 60000; // 60 seconds
+        let searchAttempts = 0;
+        let lastSearchTime = 0;
 
         function normalize(str) {
             return (str || "").toLowerCase().trim();
         }
 
-        function findGroupByName(query) {
+        // Return ALL matching groups so the guest can pick theirs
+        function findGroupsByName(query) {
             const q = normalize(query);
-            if (!q) return null;
+            if (!q) return [];
+
+            const qParts = q.split(/\s+/).filter(Boolean);
+            const results = [];
 
             for (const [groupId, names] of Object.entries(guestGroups)) {
+                let groupMatched = false;
+
                 for (const name of names) {
                     const n = normalize(name);
-                    if (n === q || n.includes(q)) {
-                        return { groupId, names };
+                    const nParts = n.split(/\s+/).filter(Boolean);
+
+                    let match = false;
+
+                    if (qParts.length >= 2) {
+                        // require exact full-name match
+                        match = (n === q);
+                    } else {
+                        // single word: must match first or last word exactly
+                        const first = nParts[0] || "";
+                        const last = nParts[nParts.length - 1] || "";
+                        match = (q === first || q === last);
+                    }
+
+                    if (match) {
+                        groupMatched = true;
+                        break;
                     }
                 }
+
+                if (groupMatched) {
+                    results.push({ groupId, names });
+                }
             }
-            return null;
+
+            return results;
         }
 
         function slugifyName(name) {
@@ -580,33 +704,19 @@
                 });
         }
 
-        function handleSearch() {
-            const searchInput = document.getElementById("searchName");
-            const query = searchInput.value;
-            const searchError = document.getElementById("searchError");
+        // Apply a selected group to the UI + hidden fields
+        function selectGroup(match) {
             const inviteeSection = document.getElementById("inviteeSection");
             const inviteeNames = document.getElementById("inviteeNames");
             const guestAttendanceSection = document.getElementById("guestAttendanceSection");
             const groupIdInput = document.getElementById("groupId");
             const assignedGuestsInput = document.getElementById("assignedGuests");
             const submitButton = document.getElementById("submitButton");
-            const errorMessage = document.getElementById("errorMessage");
+            const multipleMatchesBox = document.getElementById("multipleMatches");
 
-            searchError.classList.add("hidden");
-            errorMessage.classList.add("hidden");
-            errorMessage.textContent = "";
-
-            const match = findGroupByName(query);
-
-            if (!match) {
-                inviteeSection.classList.add("hidden");
-                guestAttendanceSection.classList.add("hidden");
-                submitButton.disabled = true;
-                searchError.textContent =
-                    "We couldn’t find that name. Please check the spelling or contact the host.";
-                searchError.classList.remove("hidden");
-                return;
-            }
+            // hide the multiple-match chooser once selected
+            multipleMatchesBox.classList.add("hidden");
+            multipleMatchesBox.innerHTML = "";
 
             const namesText = match.names.join(", ");
             inviteeNames.textContent = namesText;
@@ -621,6 +731,118 @@
             submitButton.disabled = false;
 
             prefillFromSavedData(match.groupId, match.names);
+        }
+
+        // Render selection box when multiple invitations share the same name
+        function renderGroupChoices(matches) {
+            const box = document.getElementById("multipleMatches");
+            const inviteeSection = document.getElementById("inviteeSection");
+            const guestAttendanceSection = document.getElementById("guestAttendanceSection");
+            const submitButton = document.getElementById("submitButton");
+
+            // reset downstream UI
+            inviteeSection.classList.add("hidden");
+            guestAttendanceSection.classList.add("hidden");
+            submitButton.disabled = true;
+
+            const labelHtml = `
+                <div class="invitee-label">We found multiple invitations</div>
+                <div class="helper" style="margin-top:4px;margin-bottom:8px;">
+                    Please choose the invitation that matches your group.
+                </div>
+            `;
+
+            const optionsHtml = matches.map((m, i) => {
+                const namesText = m.names.join(", ");
+                return `
+                    <label class="match-option">
+                        <input type="radio" name="matchChoice" value="${m.groupId}" ${i === 0 ? "checked" : ""}>
+                        <span class="match-option-text">${namesText}</span>
+                    </label>
+                `;
+            }).join("");
+
+            const buttonHtml = `
+                <div class="button-row" style="margin-top:10px;">
+                    <button type="button" class="btn-secondary" id="confirmMatchButton">Continue</button>
+                </div>
+            `;
+
+            box.innerHTML = labelHtml + optionsHtml + buttonHtml;
+            box.classList.remove("hidden");
+
+            document.getElementById("confirmMatchButton").onclick = () => {
+                const selected = document.querySelector('input[name="matchChoice"]:checked');
+                if (!selected) return;
+                const chosenId = selected.value;
+                const match = matches.find(m => m.groupId === chosenId);
+                if (match) {
+                    selectGroup(match);
+                }
+            };
+        }
+
+        function handleSearch() {
+            const searchInput = document.getElementById("searchName");
+            const query = searchInput.value;
+            const searchError = document.getElementById("searchError");
+            const multipleMatchesBox = document.getElementById("multipleMatches");
+            const inviteeSection = document.getElementById("inviteeSection");
+            const guestAttendanceSection = document.getElementById("guestAttendanceSection");
+            const submitButton = document.getElementById("submitButton");
+            const errorMessage = document.getElementById("errorMessage");
+
+            searchError.classList.add("hidden");
+            errorMessage.classList.add("hidden");
+            errorMessage.textContent = "";
+
+            // Rate limiting check
+            const now = Date.now();
+            if (now - lastSearchTime < SEARCH_COOLDOWN_MS && searchAttempts >= SEARCH_MAX_ATTEMPTS) {
+                searchError.textContent = "Too many searches. Please try again in some time.";
+                searchError.classList.remove("hidden");
+                return;
+            }
+
+            // Reset counter if cooldown period has passed
+            if (now - lastSearchTime >= SEARCH_COOLDOWN_MS) {
+                searchAttempts = 0;
+            }
+
+            searchAttempts++;
+            lastSearchTime = now;
+
+            // Disable button temporarily if limit is reached
+            const searchButton = document.getElementById("searchButton");
+            if (searchAttempts >= SEARCH_MAX_ATTEMPTS) {
+                searchButton.disabled = true;
+                setTimeout(() => {
+                    searchButton.disabled = false;
+                    searchAttempts = 0;
+                }, SEARCH_COOLDOWN_MS);
+            }
+
+            // clear multiple-match box on each new search
+            multipleMatchesBox.classList.add("hidden");
+            multipleMatchesBox.innerHTML = "";
+
+            const matches = findGroupsByName(query);
+
+            if (matches.length === 0) {
+                inviteeSection.classList.add("hidden");
+                guestAttendanceSection.classList.add("hidden");
+                submitButton.disabled = true;
+                searchError.textContent =
+                    "We couldn’t find that name. Please check the spelling or contact the host.";
+                searchError.classList.remove("hidden");
+                return;
+            }
+
+            if (matches.length === 1) {
+                selectGroup(matches[0]);
+            } else {
+                renderGroupChoices(matches);
+            }
         }
 
         function enforceRsvpDeadline() {

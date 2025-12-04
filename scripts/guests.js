@@ -22,7 +22,7 @@ const guestGroups = {
     "G021": ["Rudra Patel"],
     "G022": ["Mayur Patel"],
     "G023": ["Shivam Patel"],
-    "G024": ["Upsham Patel"],
+    "G024": ["Upsham Naik"],
     "G025": ["Shril Patel", "Nishi Patel"],
     "G026": ["Kirtan Patel", "Ruchika Patel"],
     "G027": ["Hersh Patel"],

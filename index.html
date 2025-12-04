@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="color-scheme" content="light dark">
-    <title>Shhhh… It’s a Secret | RSVP</title>
+    <title>RSVP | Come Celebrate Our Love</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="./assets/Logo.png" />
     <style>
         :root {
             --bg: #f7f1e9;
@@ -269,10 +270,12 @@
         }
 
         .footer-note {
-            margin-top: 20px;
+            margin-top: 28px;
             font-size: 13px;
             color: #7a6b57;
             text-align: center;
+            font-family: var(--font-sans);
+            line-height: 1.6;
         }
 
         .error {
@@ -438,11 +441,7 @@
                 Esha Becomes a Fiancée
             </h1>
             <p class="hero-script">
-                A surprise proposal party for Esha
-            </p>
-            <p class="hero-sub">
-                Your presence means the world to us.<br>
-                Come celebrate us and the beginning of our forever!
+                A surprise proposal after-party for Esha
             </p>
 
             <!-- LOCAL VIDEO -->
@@ -453,7 +452,7 @@
           border-radius: 8px;
           overflow: hidden;
         ">
-                <video id="inviteVideo" src="assets/invited.mp4" type="video/mp4" autoplay playsinline controls
+                <video id="inviteVideo" src="assets/Invitation.mov" type="video/mp4" autoplay playsinline controls
                     preload="metadata" style="width: 100%; display: block;">
                     Your browser does not support the video tag.
                 </video>
@@ -512,8 +511,7 @@
                         <button type="button" class="btn-secondary" id="searchButton">Search</button>
                     </div>
                     <div class="helper">
-                        Enter your first and last name as it appears on your invitation.
-                        Everyone in your group will appear together.
+                        Enter your first and last name.
                     </div>
                     <div id="searchError" class="error hidden"></div>
                 </div>
@@ -559,8 +557,8 @@
             </form>
 
             <div class="footer-note">
-                Please keep this a surprise from Esha.<br>
-                Thank you for helping make this night unforgettable.
+                Your presence means the world to us.<br>
+                Come celebrate us and the beginning of our forever.
             </div>
         </div>
     </div>
@@ -569,7 +567,7 @@
     <script>
         // RSVP closes after December 25, 2025 (inclusive) - EST/NYC timezone
         const RSVP_DEADLINE = new Date("2025-12-26T05:00:00Z"); // 2025-12-25 midnight EST = 2025-12-26 05:00 UTC
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjZrScmPFzOvRIJtlwMeGlgz2t7xeSI9MIeVZhwB5M8R_H3F_gbQEd9dTFeOs-Pn-u/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5YXH-i535utKhnEGZZnz_5HyUxaD3EKwI2NdCcp8orajCs_f56vZ_mmkSuXc2wPWC/exec";
 
         // Rate limiting for search
         const SEARCH_MAX_ATTEMPTS = 5;
@@ -627,6 +625,16 @@
                 .toLowerCase()
                 .replace(/[^a-z0-9]+/g, "_")
                 .replace(/^_+|_+$/g, "");
+        }
+
+        // Format actual names list naturally: "A", "A and B", "A, B and C" (no Oxford comma)
+        function formatNamesList(names) {
+            if (!names || names.length === 0) return "";
+            if (names.length === 1) return names[0];
+            if (names.length === 2) return `${names[0]} and ${names[1]}`;
+            const head = names.slice(0, -1).join(', ');
+            const last = names[names.length - 1];
+            return `${head} and ${last}`;
         }
 
         function buildGuestAttendanceRows(names) {
@@ -703,11 +711,6 @@
                         } else if (notAttendingList.includes(name)) {
                             noInput.checked = true;
                         }
-
-                        // Prefill individual email if available
-                        if (emailInput && emailMap[name]) {
-                            emailInput.value = emailMap[name];
-                        }
                     });
                 })
                 .catch(err => {
@@ -730,7 +733,8 @@
             multipleMatchesBox.innerHTML = "";
 
             const namesText = match.names.join(", ");
-            inviteeNames.textContent = namesText;
+            const displayNames = formatNamesList(match.names);
+            inviteeNames.textContent = displayNames;
             inviteeSection.classList.remove("hidden");
             guestAttendanceSection.classList.remove("hidden");
 
@@ -764,11 +768,11 @@
             `;
 
             const optionsHtml = matches.map((m, i) => {
-                const namesText = m.names.join(", ");
+                const namesDisplay = formatNamesList(m.names);
                 return `
                     <label class="match-option">
                         <input type="radio" name="matchChoice" value="${m.groupId}" ${i === 0 ? "checked" : ""}>
-                        <span class="match-option-text">${namesText}</span>
+                        <span class="match-option-text">${namesDisplay}</span>
                     </label>
                 `;
             }).join("");

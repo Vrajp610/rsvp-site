@@ -563,11 +563,16 @@
         </div>
     </div>
 
+    <script>
+      // Endpoint for fetching the guest list (Apps Script web app)
+      window.GUESTS_ENDPOINT = "https://script.google.com/macros/s/AKfycbxSz8LI6hwhDpQlBxOswZPWvgiGY09n7rhvysGkB5OqrfKpNNSzMzoNf4lkE1LTop_j/exec";
+    </script>
+
     <script src="scripts/guests.js"></script>
     <script>
         // RSVP closes after December 25, 2025 (inclusive) - EST/NYC timezone
-        const RSVP_DEADLINE = new Date("2025-12-26T05:00:00Z"); // 2025-12-25 midnight EST = 2025-12-26 05:00 UTC
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5YXH-i535utKhnEGZZnz_5HyUxaD3EKwI2NdCcp8orajCs_f56vZ_mmkSuXc2wPWC/exec";
+        const RSVP_DEADLINE = new Date("2026-1-26T05:00:00Z"); // 2025-12-25 midnight EST = 2025-12-26 05:00 UTC
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxSz8LI6hwhDpQlBxOswZPWvgiGY09n7rhvysGkB5OqrfKpNNSzMzoNf4lkE1LTop_j/exec";
 
         // Rate limiting for search
         const SEARCH_MAX_ATTEMPTS = 5;
@@ -714,7 +719,7 @@
                     });
                 })
                 .catch(err => {
-                    console.error("Error fetching saved RSVP:", err);
+                    // Error fetching saved RSVP — logging removed
                 });
         }
 
@@ -909,6 +914,25 @@
             const searchButton = document.getElementById("searchButton");
             const searchInput = document.getElementById("searchName");
 
+            // Disable search until the guest list is loaded from Apps Script
+            searchInput.disabled = true;
+            searchButton.disabled = true;
+            const originalPlaceholder = searchInput.placeholder || 'e.g. Vraj Patel';
+            searchInput.placeholder = 'Loading guest list...';
+
+            document.addEventListener('guestlist:loaded', (ev) => {
+                const ok = ev && ev.detail && ev.detail.success !== false;
+                searchInput.disabled = !ok;
+                searchButton.disabled = !ok;
+                searchInput.placeholder = ok ? originalPlaceholder : 'Could not load guest list';
+
+                if (!ok) {
+                    const searchError = document.getElementById("searchError");
+                    searchError.textContent = 'Could not load guest list. Please refresh or contact the host.';
+                    searchError.classList.remove("hidden");
+                }
+            });
+
             searchButton.addEventListener("click", handleSearch);
             searchInput.addEventListener("keydown", (e) => {
                 if (e.key === "Enter") {
@@ -940,7 +964,7 @@
                         window.location.href = "thankyou.html";
                     })
                     .catch(err => {
-                        console.error(err);
+                        // Error submitting RSVP — logging removed
                         errorMessage.textContent =
                             "Something went wrong submitting your RSVP. Please try again or contact the host.";
                         errorMessage.classList.remove("hidden");

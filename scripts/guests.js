@@ -1,44 +1,82 @@
-const guestGroups = {
-    "G001": ["Vraj Patel", "Esha Patel"],
-    "G002": ["Vrunda Patel"],
-    "G003": ["Vrusha Patel"],
-    "G004": ["Raj Patel", "Anya Shah"],
-    "G005": ["Jignesh Patel", "Erica Patel"],
-    "G006": ["Shehul Patel", "Jessica Patel"],
-    "G007": ["Jay Patel", "Vibhuti Patel"],
-    "G008": ["Shiv Patel"],
-    "G009": ["Shreena Patel"],
-    "G010": ["Akshar Patel"],
-    "G011": ["Pankaj Patel"],
-    "G012": ["Jayu Patel"],
-    "G013": ["Hemal Patel"],
-    "G014": ["Pratham Patel"],
-    "G015": ["Harshil Patel", "Himani Patel"],
-    "G016": ["Parth Patel", "Prutha Patel"],
-    "G017": ["Shreya Patolia", "Samerth Patel"],
-    "G018": ["Neelkanth Patel", "Charmi Patel"],
-    "G019": ["Khush Patel", "Aagna Patel"],
-    "G020": ["Tarun Joshi", "Nishtha Patel"],
-    "G021": ["Rudra Patel"],
-    "G022": ["Mayur Patel"],
-    "G023": ["Shivam Patel"],
-    "G024": ["Upsham Naik"],
-    "G025": ["Shril Patel", "Nishi Patel"],
-    "G026": ["Kirtan Patel", "Ruchika Patel"],
-    "G027": ["Hersh Patel"],
-    "G028": ["Jasal Patel"],
-    "G029": ["Karan Patel"],
-    "G030": ["Kajal Patel"],
-    "G031": ["Vrushti Dalal"],
-    "G032": ["Ajay Parthasarathy"],
-    "G033": ["Abhinav Sirohi"],
-    "G034": ["Ashka Desai"],
-    "G035": ["Misri Patel"],
-    "G036": ["Mansi Patel"],
-    "G037": ["Shivani Patel"],
-    "G038": ["Kavina Patel"],
-    "G039": ["Kelly Cuadrado"],
-    "G040": ["Khushi Darji"],
-    "G041": ["Ria Patel"],
-    "G042": ["Vaishnavi Varma"],
-};
+// guests.js — authoritative loader (no local fallback)
+
+// Start with empty mapping — will be populated from Apps Script
+window.guestGroups = {};
+
+function notifyGuestListLoaded(success = true) {
+  const evt = new CustomEvent('guestlist:loaded', { detail: { success } });
+  document.dispatchEvent(evt);
+}
+
+// Attempt to fetch an authoritative guest list from the Apps Script web app
+(function loadFromAppsScript() {
+  const endpoint = window.GUESTS_ENDPOINT;
+  if (!endpoint) {
+    // GUESTS_ENDPOINT missing — logging removed
+    notifyGuestListLoaded(false);
+    return;
+  }
+
+  const url = endpoint + (endpoint.includes('?') ? '&' : '?') + 'action=guestlist';
+
+  fetch(url)
+    .then(res => {
+      if (!res.ok) throw new Error('Network response was not ok: ' + res.status);
+      return res.json();
+    })
+    .then(data => {
+      if (!data) {
+        notifyGuestListLoaded(false);
+        return;
+      }
+
+      // If the Apps Script returns a mapping { G001: ["A","B"], ... }
+      if (typeof data === 'object' && !Array.isArray(data)) {
+        window.guestGroups = data;
+        // guest list loaded (mapping) — logging removed
+        notifyGuestListLoaded(true);
+        return;
+      }
+
+      // If Apps Script returns rows: [{group_id: 'G001', name_1: 'A', name_2: 'B'}, ...]
+      if (Array.isArray(data)) {
+        const map = {};
+        data.forEach(row => {
+          const id = row.group_id || row.groupId || row.group;
+          if (!id) return;
+
+          const names = [];
+
+          // Collect any columns that look like name fields (name, name_1, name 1, name1, names, etc.)
+          Object.keys(row).forEach(k => {
+            const normalizedKey = String(k || '').replace(/\s+/g, '').toLowerCase();
+            if (normalizedKey.startsWith('name')) {
+              const v = row[k];
+              if (v && String(v).trim()) names.push(String(v).trim());
+            }
+          });
+
+          // Fallback: if there's a `names` column that is CSV, expand it
+          if (names.length === 0 && row.names) {
+            const extras = String(row.names).split(',').map(s => s.trim()).filter(Boolean);
+            if (extras.length) names.push(...extras);
+          }
+
+          map[id] = names;
+        });
+        window.guestGroups = map;
+        // guest list loaded (rows) — logging removed
+        notifyGuestListLoaded(true);
+        return;
+      }
+
+      // Unexpected guest list format — logging removed
+      notifyGuestListLoaded(false);
+    })
+    .catch(err => {
+      // Could not load guest list — logging removed
+      notifyGuestListLoaded(false);
+    });
+})();
+
+
